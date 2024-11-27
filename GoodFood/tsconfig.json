@@ -1,0 +1,17 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true, // Allows default imports from CommonJS modules
+    "allowSyntheticDefaultImports": true, // Allows default imports for non-ES6 modules
+    "jsx": "react", // For React JSX support
+
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "skipLibCheck": true, // Optional: Speeds up compilation and avoids type conflicts in node_modules
+    "resolveJsonModule": true // Optional: Allows importing JSON files
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": ["node_modules", "build", "dist"] // Optional: Ensures unnecessary files are ignored
+}
