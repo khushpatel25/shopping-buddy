@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   View,
   Text,
@@ -38,6 +38,36 @@ const BillScanning: React.FC = () => {
 
   const [photo, setPhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Fetch userId from AsyncStorage on component mount
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      setUserId(storedUserId);
+    };
+    fetchUserId();
+  }, []);
+
+  const updatePoints = async (pointsChange: number) => {
+    try {
+      if (!userId) {
+        alert("User ID not found. Please log in again.");
+        return;
+      }
+      const response = await axios.post(
+        "http://192.168.2.93:5000/api/users/update-minutes/",
+        {
+          userId,
+          pointsChange,
+        }
+      );
+      console.log("Points updated successfully:", response.data);
+    } catch (error) {
+      console.error("Error updating points:", error);
+      alert("Failed to update points. Please try again.");
+    }
+  };
 
   const fetchReceiptTime = async () => {
     if (!photo) {
@@ -55,7 +85,7 @@ const BillScanning: React.FC = () => {
       });
 
       const response = await axios.post(
-        "http://134.190.234.73:5000/api/extract_time",
+        "http://192.168.2.93:5000/api/extract_time",
         formData,
         {
           headers: {
@@ -76,59 +106,7 @@ const BillScanning: React.FC = () => {
     }
   };
 
-  // const checkTimeDifference = (receiptTime: string) => {
-  //   try {
-  //     const parseTime = (time: string) => {
-  //       const [timeStr, meridian] = time.split(" ");
-  //       const [hours, minutes] = timeStr.split(":").map(Number);
-  //       const adjustedHours =
-  //         meridian === "PM" && hours !== 12
-  //           ? hours + 12
-  //           : meridian === "AM" && hours === 12
-  //           ? 0
-  //           : hours;
-  //       const now = new Date();
-  //       return new Date(
-  //         now.getFullYear(),
-  //         now.getMonth(),
-  //         now.getDate(),
-  //         adjustedHours,
-  //         minutes
-  //       );
-  //     };
-
-  //     const start = parseTime(startTime);
-  //     const receipt = parseTime(receiptTime);
-
-  //     const timeDifference =
-  //       Math.abs(receipt.getTime() - start.getTime()) / 60000;
-
-  //     console.log("Time Difference (minutes):", timeDifference);
-
-  //     if (timeDifference <= parseFloat(timeLimit)) {
-  //       Alert.alert(
-  //         "Congratulations!",
-  //         `You won 20 points! The time difference was ${timeDifference.toFixed(
-  //           2
-  //         )} minutes.`
-  //       );
-  //     } else {
-  //       Alert.alert(
-  //         "Better Luck Next Time!",
-  //         `You lost 20 points!
-  //     Start Time: ${startTime}
-  //     Parsed Start Time: ${start.toLocaleTimeString()}
-  //     Receipt Time: ${receiptTime}
-  //     Parsed Receipt Time: ${receipt.toLocaleTimeString()}
-  //     Time Difference: ${timeDifference.toFixed(2)} minutes.`
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error("Error comparing times:", error);
-  //     alert("Failed to compare times. Please check your inputs.");
-  //   }
-  // };
-  const checkTimeDifference = (receiptTime: string) => {
+  const checkTimeDifference = async (receiptTime: string) => {
     try {
       const parseTime = (time: string) => {
         const [timeStr, meridian] = time.split(" ");
@@ -161,6 +139,7 @@ const BillScanning: React.FC = () => {
       console.log("Time Difference (minutes):", timeDifference);
 
       if (timeDifference <= parseFloat(timeLimit)) {
+        await updatePoints(20); // Add 20 points for success
         Alert.alert(
           "Congratulations!",
           `You won 20 points! The time difference was ${timeDifference.toFixed(
@@ -168,6 +147,7 @@ const BillScanning: React.FC = () => {
           )} minutes.`
         );
       } else {
+        await updatePoints(-20); // Deduct 20 points for failure
         Alert.alert(
           "Better Luck Next Time!",
           `You lost 20 points!
@@ -253,7 +233,6 @@ const BillScanning: React.FC = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

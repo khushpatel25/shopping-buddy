@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const router = express.Router();
+const { v4: uuidv4 } = require("uuid");
 
 // POST /register
 router.post("/register", async (req, res) => {
@@ -22,10 +23,17 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const newUser = new User({ email, password: hashedPassword });
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      userId: uuidv4(),
+    });
     await newUser.save();
 
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({
+      message: "User registered successfully",
+      userId: newUser.userId,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -39,7 +47,6 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
@@ -57,15 +64,19 @@ router.post("/login", async (req, res) => {
       user.firstTimeLogin = false;
       await user.save();
 
-      return res
-        .status(200)
-        .json({ message: "First-time login", firstTimeLogin: true });
+      return res.status(200).json({
+        message: "First-time login",
+        firstTimeLogin: true,
+        userId: user.userId,
+      });
     }
 
     // Return success response for returning user
-    res
-      .status(200)
-      .json({ message: "Login successful", firstTimeLogin: false });
+    res.status(200).json({
+      message: "Login successful",
+      firstTimeLogin: false,
+      userId: user.userId,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

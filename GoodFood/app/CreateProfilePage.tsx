@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import {
   View,
   Text,
@@ -90,14 +92,17 @@ export default function CreateProfilePage() {
     }
 
     try {
+      const userId = await AsyncStorage.getItem("userId");
+
       const response = await fetch(
-        "http://134.190.234.73:5000/api/users/update-profile",
+        "http://192.168.2.93:5000/api/users/update-profile",
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            userId,
             email,
             firstName,
             lastName,

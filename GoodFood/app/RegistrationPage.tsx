@@ -3,6 +3,7 @@ import { View, Text, TextInput, Alert, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import styles from "./styles/RegistrationPage"; // Adjust the path if necessary
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const RegistrationPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ const RegistrationPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        "http://134.190.234.73:5000/api/auth/register",
+        "http://192.168.2.93:5000/api/auth/register",
         {
           method: "POST",
           headers: {
@@ -34,6 +35,7 @@ const RegistrationPage: React.FC = () => {
       );
 
       const data = await response.json();
+      await AsyncStorage.setItem("userId", data.userId);
 
       if (response.ok) {
         Alert.alert("Success", "Registration complete!");
@@ -82,7 +84,7 @@ const RegistrationPage: React.FC = () => {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/TimeSaverPage")}>
+      <TouchableOpacity onPress={() => router.push("/ScanHealthy")}>
         <Text style={styles.loginLink}>
           Go to <Text style={styles.loginText}>Scan Bill</Text>
         </Text>

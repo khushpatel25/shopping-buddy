@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
@@ -93,7 +95,7 @@ const ScanBillScreen: React.FC = () => {
       });
 
       const response = await axios.post(
-        "http://134.190.234.73:5000/api/extract_total",
+        "http://192.168.2.93:5000/api/extract_total",
         formData,
         {
           headers: {
@@ -104,19 +106,35 @@ const ScanBillScreen: React.FC = () => {
 
       const fetchedAmount = response.data.total_amount;
       setTotalAmount(fetchedAmount);
+      const userId = await AsyncStorage.getItem("userId");
+      let pointsChange = 0;
 
       // Show points popup
       if (fetchedAmount <= parseFloat(budget)) {
+        pointsChange = 20;
         Alert.alert(
           "Congratulations!",
           "You spent within your budget! You earned 20 points!",
           [{ text: "OK" }]
         );
       } else {
+        pointsChange = -20;
         Alert.alert("Oops!", "You exceeded your budget! You lost 20 points.", [
           { text: "OK" },
         ]);
       }
+      await axios.post(
+        "http://192.168.2.93:5000/api/users/update-points",
+        {
+          userId,
+          pointsChange,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
     } catch (error) {
       console.error("Error fetching total amount:", error);
       alert("Failed to fetch the total amount. Please try again.");

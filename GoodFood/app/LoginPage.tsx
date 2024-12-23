@@ -3,6 +3,7 @@ import { View, Text, TextInput, Alert, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import styles from "./styles/LoginPage"; // Adjust the path if necessary
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,16 +18,13 @@ export default function LoginPage() {
 
     try {
       // Make a POST request to login endpoint
-      const response = await fetch(
-        "http://134.190.234.73:5000/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch("http://192.168.2.93:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
       const data = await response.json();
       console.log(data);
@@ -38,6 +36,8 @@ export default function LoginPage() {
             "Welcome",
             "First-time login! Please complete your profile."
           );
+          await AsyncStorage.setItem("userId", data.userId);
+          console.log(data.userId);
           // Navigate to CreateProfilePage and pass email
           router.push("/CreateProfilePage");
         } else {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,8 @@ import {
   StyleSheet,
   ImageSourcePropType,
 } from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native"; // Import NavigationProp
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type RootStackParamList = {
   MoneySaverPage: undefined;
@@ -21,7 +22,7 @@ interface CharacterButtonProps {
   text: string;
   icon: ImageSourcePropType;
   style: object;
-  onPress: () => void; // Add onPress prop for navigation action
+  onPress: () => void;
 }
 
 const CharacterButton: React.FC<CharacterButtonProps> = ({
@@ -38,13 +39,41 @@ const CharacterButton: React.FC<CharacterButtonProps> = ({
 
 const SelectStylePage: React.FC = () => {
   const navigation = useNavigation();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userId = await AsyncStorage.getItem("userId");
+        if (userId) {
+          const response = await fetch(
+            `http://192.168.2.93:5000/api/users/find-user/${userId}`
+          );
+          const userData = await response.json();
+          console.log(userData);
+          if (response.ok) {
+            const { firstName, lastName } = userData;
+            setUserName(`${firstName} ${lastName}`);
+          } else {
+            console.error("Failed to fetch user data:", userData.message);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <View style={styles.container}>
       {/* Header with username and profile image */}
       <View style={styles.headerContainer}>
-        <Text style={styles.greetingText}>Hey Miko,</Text>
-        <Text style={styles.subText}>Let's Go Shopping!</Text>
+        <Text style={styles.subText}>
+          {userName ? `Hey ${userName},` : "Hey,"}
+        </Text>
+        <Text style={styles.subText}> let's Go Shopping!</Text>
         <Image
           source={{ uri: "https://yourimageurl.com" }} // Replace with actual user profile image
           style={styles.profileImage}
@@ -60,26 +89,26 @@ const SelectStylePage: React.FC = () => {
           text="Money Saver"
           icon={require("../assets/images/character1.png")} // Local image asset
           style={styles.character1}
-          onPress={() => navigation.navigate("MoneySaverPage")} // Navigate to MoneySaverPage
+          onPress={() => navigation.navigate("MoneySaverPage")}
         />
         <CharacterButton
           text="Time Saver"
           icon={require("../assets/images/character2.jpeg")} // Local image asset
           style={styles.character2}
-          onPress={() => navigation.navigate("TimeSaverPage")} // Navigate to HealthyShopperPage
+          onPress={() => navigation.navigate("TimeSaverPage")}
         />
         <CharacterButton
           text="Healthy Shopper"
           icon={require("../assets/images/character3.jpg")} // Local image asset
           style={styles.character3}
-          onPress={() => navigation.navigate("HealthyShopperPage")} // Navigate to HealthyShopperPage
+          onPress={() => navigation.navigate("HealthyShopperSummary")}
         />
       </View>
 
       {/* Continue button */}
       <TouchableOpacity
         style={styles.continueButton}
-        onPress={() => navigation.navigate("NextScreen")} // Replace with actual navigation route
+        onPress={() => navigation.navigate("NextScreen")}
       >
         <Text style={styles.continueButtonText}>Continue</Text>
       </TouchableOpacity>
@@ -118,8 +147,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   characterContainer: {
-    flexDirection: "column", // Change this to 'column'
-    alignItems: "center", // Center items horizontally (optional)
+    flexDirection: "column",
+    alignItems: "center",
     marginTop: 20,
   },
   characterButton: {
@@ -152,13 +181,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   character1: {
-    backgroundColor: "#F0F0F0", // Example styling for Character 1
+    backgroundColor: "#F0F0F0",
   },
   character2: {
-    backgroundColor: "#E0E0E0", // Example styling for Character 2
+    backgroundColor: "#E0E0E0",
   },
   character3: {
-    backgroundColor: "#E0E0E0", // Example styling for Character 2
+    backgroundColor: "#E0E0E0",
   },
 });
 

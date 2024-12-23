@@ -18,4 +18,11 @@ router.post(
   upload.single("image"),
   receiptController.extractTime
 );
+
+router.post(
+  "/check_healthy",
+  upload.single("image"),
+  receiptController.extractHealthiness
+);
+
 module.exports = router;
