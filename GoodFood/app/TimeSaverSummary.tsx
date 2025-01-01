@@ -50,9 +50,7 @@ const TimeSaverSummary: React.FC = () => {
           Great job shopping with a time limit!
         </Text>
         <Text style={styles.title}>Your Time Limit: {timeLimit} minutes</Text>
-        <Text style={styles.title}>
-          Shopping Started At: {formatTime(startTime)}
-        </Text>
+        <Text style={styles.title}>Shopping Started</Text>
         <Text style={styles.title}>Want to earn points?</Text>
         <Image
           source={require("../assets/images/timesaverimage.png")} // Replace with your clock image
