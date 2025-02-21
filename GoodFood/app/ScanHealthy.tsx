@@ -18,6 +18,8 @@ import {
 } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
+import { api } from "@/constants/api";
+import { getUserId } from "@/utils/storage";
 
 // Define types for navigation
 type RootStackParamList = {
@@ -54,8 +56,11 @@ const ScanHealthy: React.FC = () => {
         type: "image/jpeg",
       });
 
+      console.log({ photo })
+      console.log({ formData })
+
       const response = await axios.post(
-        "http://192.168.2.93:5000/api/check_healthy",
+        `${api}/api/check_healthy`,
         formData,
         {
           headers: {
@@ -64,9 +69,13 @@ const ScanHealthy: React.FC = () => {
         }
       );
 
+      console.log({ response })
+
       const status = response.data.status;
       console.log("Healthiness Status from API:", status);
-      const userId = await AsyncStorage.getItem("userId");
+      // const userId = await AsyncStorage.getItem("userId");
+      const userId = await getUserId(); 
+      console.log({userId})
       let pointsChange = 0;
       if (status === "healthy") {
         pointsChange = 20;
@@ -85,18 +94,24 @@ const ScanHealthy: React.FC = () => {
       } else {
         alert("Unexpected status received from API.");
       }
-      await axios.post(
-        "http://192.168.2.93:5000/api/users/update-hearts",
-        {
-          userId,
-          pointsChange,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
+      try {
+        await axios.post(
+          `${api}/api/users/update-hearts`,
+          {
+            userId,
+            pointsChange,
           },
-        }
-      );
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } catch (error) {
+        console.log("Error while updating hearts: ", error)
+        alert("Failed to update hearts")
+      }
+     
     } catch (error) {
       console.error("Error fetching healthiness status:", error);
       alert("Failed to analyze the receipt. Please try again.");

@@ -15,6 +15,7 @@ const UserSchema = new mongoose.Schema({
   firstTimeLogin: { type: Boolean, default: true }, // New field, initially true
   minutes: { type: Number, default: false },
   hearts: { type: Number, default: false },
+  profileImage: {type:String}
 });
 
 module.exports = mongoose.model("User", UserSchema);

@@ -15,6 +15,8 @@ import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import axios from "axios";
 import { useRoute } from "@react-navigation/native";
+import { api } from "@/constants/api";
+import { getUserId } from "@/utils/storage";
 
 const ScanBillScreen: React.FC = () => {
   const [photo, setPhoto] = useState<string | null>(null);
@@ -95,7 +97,7 @@ const ScanBillScreen: React.FC = () => {
       });
 
       const response = await axios.post(
-        "http://192.168.2.93:5000/api/extract_total",
+        `${api}/api/extract_total`,
         formData,
         {
           headers: {
@@ -106,7 +108,8 @@ const ScanBillScreen: React.FC = () => {
 
       const fetchedAmount = response.data.total_amount;
       setTotalAmount(fetchedAmount);
-      const userId = await AsyncStorage.getItem("userId");
+      const userId = await getUserId();
+      console.log({userId})
       let pointsChange = 0;
 
       // Show points popup
@@ -124,7 +127,7 @@ const ScanBillScreen: React.FC = () => {
         ]);
       }
       await axios.post(
-        "http://192.168.2.93:5000/api/users/update-points",
+        `${api}/api/users/update-points`,
         {
           userId,
           pointsChange,

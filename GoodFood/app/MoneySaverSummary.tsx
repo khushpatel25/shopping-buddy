@@ -6,12 +6,14 @@ import {
   useRoute,
   NavigationProp,
 } from "@react-navigation/native";
+import BottomNavigation from "./BottomNavigation";
 
 // Define types for navigation
 type RootStackParamList = {
   MoneySaverPage: undefined;
   MoneySaverSummary: { budget: string };
-  ScanBillScreen: { budget: string }; // Add ScanBillScreen to the route parameters
+  ScanBillScreen: { budget: string }; 
+  PointsLeaderBoard: undefined
 };
 
 type RouteParams = {
@@ -19,7 +21,8 @@ type RouteParams = {
 };
 type MoneySaverSummaryNavigationProp = NavigationProp<
   RootStackParamList,
-  "MoneySaverSummary"
+  "MoneySaverSummary",
+  "PointsLeaderBoard"
 >;
 
 const MoneySaverSummary: React.FC = () => {
@@ -55,23 +58,7 @@ const MoneySaverSummary: React.FC = () => {
       </View>
 
       {/* Bottom Navigation */}
-      <View style={styles.navigationContainer}>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Wallet</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Reports</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Account</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNavigation leaderboardNavigate="PointsLeaderBoard"/>
     </View>
   );
 };

@@ -1,15 +1,18 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import BottomNavigation from "./BottomNavigation";
 
 // Define navigation types
 type RootStackParamList = {
   ScanHealthy: undefined;
+  HeartsLeaderBoard: undefined
 };
 
 type HealthyShopperSummaryNavigationProp = NavigationProp<
   RootStackParamList,
-  "ScanHealthy"
+  "ScanHealthy",
+  "HeartsLeaderBoard"
 >;
 
 const HealthyShopperSummary: React.FC = () => {
@@ -41,23 +44,7 @@ const HealthyShopperSummary: React.FC = () => {
       </View>
 
       {/* Bottom Navigation */}
-      <View style={styles.navigationContainer}>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Wallet</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Reports</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Account</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNavigation leaderboardNavigate="HeartsLeaderBoard"/>
     </View>
   );
 };

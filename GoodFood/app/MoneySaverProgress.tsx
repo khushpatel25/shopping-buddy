@@ -1,15 +1,17 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import BottomNavigation from "./BottomNavigation";
 
 type RootStackParamList = {
   MoneySaverPage: undefined;
   MoneySaverSummary: { budget: string };
   ScanBillScreen: { budget: string };
   WalletScreen: undefined;
+  PointsLeaderBoard: undefined
 };
 
-type NavigationPropType = NavigationProp<RootStackParamList, "WalletScreen">;
+type NavigationPropType = NavigationProp<RootStackParamList, "WalletScreen", "PointsLeaderBoard">;
 
 const MoneySaverProgress: React.FC = () => {
   const navigation = useNavigation<NavigationPropType>();
@@ -51,23 +53,7 @@ const MoneySaverProgress: React.FC = () => {
       </TouchableOpacity>
 
       {/* Bottom Navigation */}
-      <View style={styles.navigationContainer}>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Wallet</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Reports</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Account</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNavigation leaderboardNavigate="PointsLeaderBoard"/>
     </View>
   );
 };

@@ -6,31 +6,26 @@ import {
   NavigationProp,
   RouteProp,
 } from "@react-navigation/native";
+import BottomNavigation from "./BottomNavigation";
 
 // Define types for navigation
 type RootStackParamList = {
   TimeSaverPage: undefined;
   TimeSaverSummary: { timeLimit: string; startTime: string };
   BillScanning: { timeLimit: string; startTime: string };
+  MinutesLeaderBoard: undefined;
 };
 
 type TimeSaverSummaryNavigationProp = NavigationProp<
   RootStackParamList,
-  "TimeSaverSummary"
+  "TimeSaverSummary",
+  "MinutesLeaderBoard"
 >;
 
 type TimeSaverSummaryRouteProp = RouteProp<
   RootStackParamList,
   "TimeSaverSummary"
 >;
-
-// Helper function to format time in HH:mm (24-hour) format
-const formatTime = (timeString: string): string => {
-  const date = new Date(timeString);
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  return `${hours}:${minutes}`;
-};
 
 const TimeSaverSummary: React.FC = () => {
   const navigation = useNavigation<TimeSaverSummaryNavigationProp>();
@@ -53,7 +48,7 @@ const TimeSaverSummary: React.FC = () => {
         <Text style={styles.title}>Shopping Started</Text>
         <Text style={styles.title}>Want to earn points?</Text>
         <Image
-          source={require("../assets/images/timesaverimage.png")} // Replace with your clock image
+          source={require("../assets/images/timesaverimage.png")}
           style={styles.clockImage}
         />
         <TouchableOpacity
@@ -67,23 +62,7 @@ const TimeSaverSummary: React.FC = () => {
       </View>
 
       {/* Bottom Navigation */}
-      <View style={styles.navigationContainer}>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Wallet</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Reports</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Account</Text>
-        </TouchableOpacity>
-      </View>
+     <BottomNavigation leaderboardNavigate="MinutesLeaderBoard"/>
     </View>
   );
 };
@@ -91,13 +70,16 @@ const TimeSaverSummary: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF",
+    backgroundColor: "#F8F9FA",
     justifyContent: "space-between",
+    paddingBottom: 10,
   },
   header: {
     backgroundColor: "#53A0FF",
     paddingVertical: 20,
     alignItems: "center",
+    borderBottomWidth: 2,
+    borderBottomColor: "#DDD",
   },
   headerText: {
     fontSize: 24,
@@ -127,6 +109,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     borderRadius: 30,
     marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   noteText: {
     marginTop: 10,
@@ -144,16 +130,24 @@ const styles = StyleSheet.create({
   navigationContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#EEE",
+    paddingVertical: 15,
+    borderTopWidth: 2,
+    borderTopColor: "#CCC",
+    backgroundColor: "#FFFFFF",
   },
   navButton: {
     alignItems: "center",
+    flex: 1,
+    paddingVertical: 10,
   },
   navText: {
-    fontSize: 12,
+    fontSize: 14,
+    fontWeight: "bold",
     color: "#555",
+  },
+  activeButton: {
+    borderBottomWidth: 3,
+    borderBottomColor: "#53A0FF",
   },
 });
 

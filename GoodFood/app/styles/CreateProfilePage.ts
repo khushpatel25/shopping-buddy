@@ -3,7 +3,6 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
     padding: 16,
     backgroundColor: "white",
@@ -68,6 +67,19 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 5,
   },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#000', // Text color
+    backgroundColor: '#F7F7F7', // Background color
+    borderWidth: 1,
+    borderColor: '#800080', // Border color for visibility
+    borderRadius: 5,
+    marginVertical: 10,
+    justifyContent: 'center',
+    textAlign: 'center',
+  },  
+
 });
 
 export default styles;

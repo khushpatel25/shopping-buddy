@@ -8,12 +8,28 @@ import {
   TextInput,
 } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { TouchableWithoutFeedback } from "react-native";
+import { Keyboard } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import BottomNavigation from "./BottomNavigation";
+
 
 type RootStackParamList = {
   TimeSaverPage: undefined;
   TimeSaverSummary: { timeLimit: string; startTime: string };
+  MinutesLeaderBoard: undefined
 };
+
+type TimeSaverPageNavigationProps = NavigationProp<
+  RootStackParamList,
+  "MinutesLeaderBoard",
+  "TimeSaverSummary"
+  >;
+
 const TimeSaverPage: React.FC = () => {
+  
+  const placeholderColor = useThemeColor({}, 'placeholder');
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [timeLimit, setTimeLimit] = useState(""); // State to store the time limit input
   const [shoppingStarted, setShoppingStarted] = useState(false); // State to track shopping session
@@ -78,84 +94,71 @@ const TimeSaverPage: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Time Saver</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        {/* Header Section */}
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Time Saver</Text>
+        </View>
+
+        {/* Main Content */}
+        <View style={styles.content}>
+          <Text style={styles.title}>How much time will you spend shopping?</Text>
+          <Image
+            source={require("../assets/images/timesaverimage.png")} // Add a clock image in your assets
+            style={styles.clockImage}
+          />
+
+          {/* TextInput for the user to enter time limit */}
+          <TextInput
+            style={styles.timeInput}
+            placeholder="Enter time limit in minutes"
+            keyboardType="numeric"
+            value={timeLimit}
+            placeholderTextColor={placeholderColor}
+            onChangeText={(text) => setTimeLimit(text)} // Set the entered time limit
+          />
+
+          {/* Display time limit value */}
+          {timeLimit ? (
+            <Text style={styles.timeDisplay}>
+              Your time limit: {timeLimit} minutes
+            </Text>
+          ) : null}
+
+          {/* Timer Display */}
+          {shoppingStarted && (
+            <Text style={styles.timerText}>
+              Shopping Time: {formatTime(timer)}
+            </Text>
+          )}
+
+          {/* Start Shopping Button */}
+          <TouchableOpacity
+            style={[styles.startButton, shoppingStarted && styles.disabledButton]} // Disable button when shopping has started
+            onPress={handleStartShopping}
+            disabled={shoppingStarted} // Disable button if shopping has started
+          >
+            <Text style={styles.buttonText}>Start Shopping</Text>
+          </TouchableOpacity>
+
+          {/* End Shopping Button */}
+          <TouchableOpacity style={styles.endButton} onPress={handleEndShopping}>
+            <Text style={styles.buttonText}>End Shopping</Text>
+          </TouchableOpacity>
+
+          {/* Note displayed when shopping starts */}
+          {shoppingStarted && (
+            <Text style={styles.noteText}>
+              Click on "End Shopping" to upload the receipt and earn points.
+            </Text>
+          )}
+        </View>
+
+        {/* Bottom Navigation */}
+        <BottomNavigation leaderboardNavigate="MinutesLeaderBoard"/>
       </View>
-
-      {/* Main Content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>How much time will you spend shopping?</Text>
-        <Image
-          source={require("../assets/images/timesaverimage.png")} // Add a clock image in your assets
-          style={styles.clockImage}
-        />
-
-        {/* TextInput for the user to enter time limit */}
-        <TextInput
-          style={styles.timeInput}
-          placeholder="Enter time limit in minutes"
-          keyboardType="numeric"
-          value={timeLimit}
-          onChangeText={(text) => setTimeLimit(text)} // Set the entered time limit
-        />
-
-        {/* Display time limit value */}
-        {timeLimit ? (
-          <Text style={styles.timeDisplay}>
-            Your time limit: {timeLimit} minutes
-          </Text>
-        ) : null}
-
-        {/* Timer Display */}
-        {shoppingStarted && (
-          <Text style={styles.timerText}>
-            Shopping Time: {formatTime(timer)}
-          </Text>
-        )}
-
-        {/* Start Shopping Button */}
-        <TouchableOpacity
-          style={[styles.startButton, shoppingStarted && styles.disabledButton]} // Disable button when shopping has started
-          onPress={handleStartShopping}
-          disabled={shoppingStarted} // Disable button if shopping has started
-        >
-          <Text style={styles.buttonText}>Start Shopping</Text>
-        </TouchableOpacity>
-
-        {/* End Shopping Button */}
-        <TouchableOpacity style={styles.endButton} onPress={handleEndShopping}>
-          <Text style={styles.buttonText}>End Shopping</Text>
-        </TouchableOpacity>
-
-        {/* Note displayed when shopping starts */}
-        {shoppingStarted && (
-          <Text style={styles.noteText}>
-            Click on "End Shopping" to upload the receipt and earn points.
-          </Text>
-        )}
-      </View>
-
-      {/* Bottom Navigation */}
-      <View style={styles.navigationContainer}>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Wallet</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Reports</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Account</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 

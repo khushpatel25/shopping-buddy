@@ -4,12 +4,18 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import styles from "./styles/LoginPage"; // Adjust the path if necessary
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api } from "@/constants/api";
+import { storeUserId } from "@/utils/storage";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-
+  
+  const placeholderColor = useThemeColor({}, 'placeholder');
+  
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Email and password are required.");
@@ -18,7 +24,7 @@ export default function LoginPage() {
 
     try {
       // Make a POST request to login endpoint
-      const response = await fetch("http://192.168.2.93:5000/api/auth/login", {
+      const response = await fetch(`${api}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,18 +34,20 @@ export default function LoginPage() {
 
       const data = await response.json();
       console.log(data);
-
+      
       if (response.status === 200) {
+        await storeUserId(data.userId)
         // Check if the user is logging in for the first time based on the flag from the backend
         if (data.firstTimeLogin) {
           Alert.alert(
             "Welcome",
             "First-time login! Please complete your profile."
           );
-          await AsyncStorage.setItem("userId", data.userId);
+          // await AsyncStorage.setItem("userId", data.userId);
+          // localStorage.setItem("userId", data.userId);
           console.log(data.userId);
           // Navigate to CreateProfilePage and pass email
-          router.push("/CreateProfilePage");
+          router.replace("/CreateProfilePage");
         } else {
           console.log("at 41");
           Alert.alert("Success", "Login successful!");
@@ -65,6 +73,7 @@ export default function LoginPage() {
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
+        placeholderTextColor={placeholderColor}
         keyboardType="email-address"
       />
 
@@ -74,13 +83,14 @@ export default function LoginPage() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        placeholderTextColor={placeholderColor}
       />
 
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/RegistrationPage")}>
+      <TouchableOpacity onPress={() => router.replace("/RegistrationPage")}>
         <Text style={styles.signupLink}>
           Don't have an account? <Text style={styles.signupText}>Signup</Text>
         </Text>
@@ -104,3 +114,4 @@ export default function LoginPage() {
     </View>
   );
 }
+

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
+import { api } from "@/constants/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   View,
@@ -17,6 +18,7 @@ import {
 } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
+import { getUserId } from "@/utils/storage";
 
 // Define types for navigation
 type RootStackParamList = {
@@ -41,22 +43,26 @@ const BillScanning: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
 
   // Fetch userId from AsyncStorage on component mount
-  useEffect(() => {
-    const fetchUserId = async () => {
-      const storedUserId = await AsyncStorage.getItem("userId");
-      setUserId(storedUserId);
-    };
-    fetchUserId();
-  }, []);
+  // useEffect(() => {
+  //   const fetchUserId = async () => {
+  //     const storedUserId = await AsyncStorage.getItem("userId");
+  //     setUserId(storedUserId);
+  //   };
+  //   fetchUserId();
+  // }, []);
 
   const updatePoints = async (pointsChange: number) => {
+
+    const userId = await getUserId();
+    console.log({useId})
+
     try {
       if (!userId) {
         alert("User ID not found. Please log in again.");
         return;
       }
       const response = await axios.post(
-        "http://192.168.2.93:5000/api/users/update-minutes/",
+        `${api}/api/users/update-minutes/`,
         {
           userId,
           pointsChange,
@@ -85,7 +91,7 @@ const BillScanning: React.FC = () => {
       });
 
       const response = await axios.post(
-        "http://192.168.2.93:5000/api/extract_time",
+        `${api}/api/extract_time`,
         formData,
         {
           headers: {

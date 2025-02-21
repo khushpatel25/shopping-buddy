@@ -6,15 +6,30 @@ import {
   Image,
   StyleSheet,
   TextInput,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { Keyboard } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import BottomNavigation from "./BottomNavigation";
+
 
 type RootStackParamList = {
   MoneySaverPage: undefined;
   MoneySaverSummary: { budget: string };
+  PointsLeaderBoard: undefined
 };
+
+type MoneySaverPageNavigationProps = NavigationProp<
+  RootStackParamList,
+  "PointsLeaderBoard"
+  >;
 const MoneySaverPage: React.FC = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const navigation = useNavigation<MoneySaverPageNavigationProps>();
+  
+  const placeholderColor = useThemeColor({}, 'placeholder');
+  
   const [budget, setBudget] = useState(""); // State to store the budget input
   const [shoppingStarted, setShoppingStarted] = useState(false); // State to track shopping session
   const [timer, setTimer] = useState(0); // State to track the timer (in seconds)
@@ -61,6 +76,7 @@ const MoneySaverPage: React.FC = () => {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.container}>
       {/* Header Section */}
       <View style={styles.header}>
@@ -80,7 +96,8 @@ const MoneySaverPage: React.FC = () => {
           style={styles.budgetInput}
           placeholder="Enter your budget"
           keyboardType="numeric"
-          value={budget}
+            value={budget}
+            placeholderTextColor={placeholderColor}
           onChangeText={(text) => setBudget(text)} // Set the entered budget
         />
 
@@ -119,24 +136,9 @@ const MoneySaverPage: React.FC = () => {
       </View>
 
       {/* Bottom Navigation */}
-      <View style={styles.navigationContainer}>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Wallet</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Reports</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Account</Text>
-        </TouchableOpacity>
+      <BottomNavigation leaderboardNavigate="PointsLeaderBoard"/>
       </View>
-    </View>
+      </TouchableWithoutFeedback>
   );
 };
 

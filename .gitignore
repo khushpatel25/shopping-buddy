@@ -19,7 +19,9 @@ coverage
 
 # Dependency directories
 /GoodFood/node_modules/
+/GoodFood/.env
 /shopping-buddy-backend/node_modules/
+/shopping-buddy-backend/.env
 jspm_packages/
 
 # Optional npm cache directory

@@ -1,4 +1,7 @@
 const User = require("../models/User");
+const cron = require("node-cron");
+
+const timeZone = 'America/Halifax';
 
 exports.findUserById = async (req, res) => {
   const { userId } = req.params;
@@ -24,6 +27,7 @@ exports.updateProfile = async (req, res) => {
     gender,
     age,
     shoppingDays,
+    profileImage
   } = req.body;
 
   console.log("Received request to update profile:");
@@ -37,6 +41,7 @@ exports.updateProfile = async (req, res) => {
     gender,
     age,
     shoppingDays,
+    profileImage
   });
 
   try {
@@ -50,6 +55,7 @@ exports.updateProfile = async (req, res) => {
         gender,
         age,
         shoppingDays,
+        profileImage,
         firstTimeLogin: false,
       },
       { new: true }
@@ -105,8 +111,11 @@ exports.updateMinutes = async (req, res) => {
 exports.updateHearts = async (req, res) => {
   const { userId, pointsChange } = req.body;
 
+  console.log(req.body)
+
   try {
     const user = await User.findOne({ userId }); // Use findOne with userId
+    console.log({user})
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -120,3 +129,64 @@ exports.updateHearts = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.getUsersByPoints = async (req,res) => {
+  try {
+    const users = await User.find().sort({ points: -1 });
+    console.log({ users });
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users by points:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+exports.getUsersByHearts = async (req, res) => {
+  try {
+    const users = await User.find().sort({ hearts: -1 });
+    console.log({ users });
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users hearts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+exports.getUsersByMinutes = async (req, res) => {
+  try {
+    const users = await User.find().sort({ minutes: -1 });
+    console.log({ users });
+    res.status(200).json(users);
+  } catch (error) {
+    console.log("Error fetching users minutes:", error);
+    res.status(500).json({message: "Server error"})
+  }
+}
+
+cron.schedule("0 0 * * 0", async () => {
+  try {
+
+    const topUsersByPoints = await User.find().sort({ points: -1 }).limit(3);
+    for (let user of topUsersByPoints) {
+      user.points += 20;
+      await user.save();
+    }
+
+    const topUsersByMinutes = await User.find().sort({ minutes: -1 }).limit(3);
+    for (let user of topUsersByMinutes) {
+      user.minutes += 20;
+      await user.save();
+    }
+
+    const topUsersByHearts = await User.find().sort({ hearts: -1 }).limit(3);
+    for (let user of topUsersByHearts) {
+      user.hearts += 20;
+      await user.save();
+    }
+
+    console.log("Top 3 users rewarded successfully.")
+
+  } catch (error) {
+    console.error('Error rewarding top users:', error);
+  }
+})

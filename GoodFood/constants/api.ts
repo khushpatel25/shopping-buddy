@@ -1,0 +1,1 @@
+export const api: string = process.env.EXPO_PUBLIC_BACKEND_API || "http://localhost:5000";

@@ -4,12 +4,20 @@ import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import styles from "./styles/RegistrationPage"; // Adjust the path if necessary
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api } from "@/constants/api";
+import { storeUserId } from "@/utils/storage";
+import { TouchableWithoutFeedback } from "react-native";
+import { Keyboard } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
 
 const RegistrationPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  
+  const placeholderColor = useThemeColor({}, 'placeholder');
+  
   const router = useRouter();
 
   const handleRegister = async () => {
@@ -24,7 +32,7 @@ const RegistrationPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        "http://192.168.2.93:5000/api/auth/register",
+        `${api}/api/auth/register`,
         {
           method: "POST",
           headers: {
@@ -35,12 +43,14 @@ const RegistrationPage: React.FC = () => {
       );
 
       const data = await response.json();
-      await AsyncStorage.setItem("userId", data.userId);
+      await storeUserId(data.userId)
+      // await AsyncStorage.setItem("userId", data.userId);
+      // localStorage.setItem("userId", data.userId);
 
       if (response.ok) {
         Alert.alert("Success", "Registration complete!");
         // Optionally, navigate to the login page
-        router.push("/LoginPage");
+        router.replace("/LoginPage");
       } else {
         Alert.alert("Error", data.message);
       }
@@ -50,61 +60,66 @@ const RegistrationPage: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign up to Shopping Buddy</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-      />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Sign up to Shopping Buddy</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          placeholderTextColor={placeholderColor}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          placeholderTextColor={placeholderColor}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          placeholderTextColor={placeholderColor}
+          secureTextEntry
+        />
 
-      <TouchableOpacity style={styles.signupButton} onPress={handleRegister}>
-        <Text style={styles.signupButtonText}>Signup</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.signupButton} onPress={handleRegister}>
+          <Text style={styles.signupButtonText}>Signup</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/LoginPage")}>
-        <Text style={styles.loginLink}>
-          Already have an account? <Text style={styles.loginText}>Login</Text>
-        </Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.replace("/LoginPage")}>
+          <Text style={styles.loginLink}>
+            Already have an account? <Text style={styles.loginText}>Login</Text>
+          </Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/ScanHealthy")}>
-        <Text style={styles.loginLink}>
-          Go to <Text style={styles.loginText}>Scan Bill</Text>
-        </Text>
-      </TouchableOpacity>
-      <View style={styles.divider}>
-        <View style={styles.line} />
-        <Text style={styles.orText}>or</Text>
-        <View style={styles.line} />
+        <TouchableOpacity onPress={() => router.push("/ScanHealthy")}>
+          <Text style={styles.loginLink}>
+            Go to <Text style={styles.loginText}>Scan Bill</Text>
+          </Text>
+        </TouchableOpacity>
+        <View style={styles.divider}>
+          <View style={styles.line} />
+          <Text style={styles.orText}>or</Text>
+          <View style={styles.line} />
+        </View>
+
+        <TouchableOpacity style={styles.socialButton}>
+          <FontAwesome name="google" size={20} color="#DB4437" />
+          <Text style={styles.socialButtonText}>Continue with Google</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.socialButton}>
+          <FontAwesome name="apple" size={20} color="black" />
+          <Text style={styles.socialButtonText}>Continue with Apple</Text>
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity style={styles.socialButton}>
-        <FontAwesome name="google" size={20} color="#DB4437" />
-        <Text style={styles.socialButtonText}>Continue with Google</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.socialButton}>
-        <FontAwesome name="apple" size={20} color="black" />
-        <Text style={styles.socialButtonText}>Continue with Apple</Text>
-      </TouchableOpacity>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 

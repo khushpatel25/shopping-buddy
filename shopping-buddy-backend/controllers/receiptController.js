@@ -9,17 +9,19 @@ exports.extractTotalAmount = async (req, res) => {
 
   const filePath = req.file.path;
 
+  console.log({filePath})
+
   try {
     // Extract text from receipt image using Tesseract
     const extractedText = await Tesseract.recognize(filePath, "eng", {
-      logger: (m) => console.log(m), // Optional logger to show progress
+      // logger: (m) => console.log(m), // Optional logger to show progress
     });
 
     console.log("Extracted Text:", extractedText.data.text);
 
-    // Send extracted text to GPT-4 to find the total amount
+    // Send extracted text to gpt-3.5-turbo to find the total amount
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "user",
@@ -28,15 +30,20 @@ exports.extractTotalAmount = async (req, res) => {
       ],
     });
 
-    // Assuming GPT-4 responds with the total amount in the desired format
+    // Assuming gpt-3.5-turbo responds with the total amount in the desired format
     const gptResponseText = response.choices[0].message.content;
-    console.log("GPT-4 Response:", gptResponseText);
+    console.log("gpt-3.5-turbo Response:", gptResponseText);
 
-    // Use regex to extract only the amount from GPT-4's response
+    // Use regex to extract only the amount from gpt-3.5-turbo's response
     const totalAmountMatch = gptResponseText.match(/\$?(\d+(\.\d{1,2})?)/);
+
+    console.log({totalAmountMatch})
+
     const totalAmount = totalAmountMatch
       ? parseFloat(totalAmountMatch[1])
       : null;
+    
+    console.log({totalAmount})
 
     if (totalAmount) {
       res.json({ total_amount: totalAmount });
@@ -64,9 +71,9 @@ exports.extractTime = async (req, res) => {
 
     console.log("Extracted Text:", extractedText.data.text);
 
-    // Send extracted text to GPT-4 to find the time
+    // Send extracted text to gpt-3.5-turbo to find the time
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "user",
@@ -76,7 +83,7 @@ exports.extractTime = async (req, res) => {
     });
 
     const gptResponseText = response.choices[0].message.content;
-    console.log("GPT-4 Response:", gptResponseText);
+    console.log("gpt-3.5-turbo Response:", gptResponseText);
 
     const timeMatch = gptResponseText.match(
       /(\d{1,2}:\d{2}\s?(?:AM|PM|am|pm)?)/
@@ -95,6 +102,10 @@ exports.extractTime = async (req, res) => {
 };
 
 exports.extractHealthiness = async (req, res) => {
+
+  // console.log(req.body.image)
+  // console.log(req.file)
+
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
@@ -104,14 +115,14 @@ exports.extractHealthiness = async (req, res) => {
   try {
     // Extract text from receipt image using Tesseract
     const extractedText = await Tesseract.recognize(filePath, "eng", {
-      logger: (m) => console.log(m), // Optional logger to show progress
+      // logger: (m) => console.log(m), // Optional logger to show progress
     });
 
-    console.log("Extracted Text:", extractedText.data.text);
+    // console.log("Extracted Text:", extractedText.data.text);
 
-    // Send extracted text to GPT-4 to analyze the items
+    // Send extracted text to gpt-3.5-turbo to analyze the items
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "user",
@@ -123,12 +134,12 @@ exports.extractHealthiness = async (req, res) => {
     const gptResponseText = response.choices[0].message.content
       .trim()
       .toString();
-    console.log("GPT-4 Response:", gptResponseText);
+    console.log("gpt-3.5-turbo Response:", gptResponseText);
 
     if (gptResponseText === "healthy" || gptResponseText === "unhealthy") {
       res.json({ status: gptResponseText });
     } else {
-      res.status(400).json({ error: "Unexpected response from GPT-4" });
+      res.status(400).json({ error: "Unexpected response from gpt-3.5-turbo" });
     }
   } catch (error) {
     console.error(error);
